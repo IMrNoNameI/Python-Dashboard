@@ -11,11 +11,6 @@ def extract():
     customer_df["customer_id"] = customer_df["customer_id"].astype(str).str.strip()
     
     return basket_df, customer_df
-    print(basket_df.head())
-    print(basket_df.columns)
-
-    print(customer_df.head())
-    print(customer_df.columns)
 
 #----------------
 # Transformation
@@ -36,21 +31,18 @@ def transform(customer_df, basket_df):
     basket_df = basket_df.drop_duplicates()
 
     # Behandlung fehlender Werte
-    customer_df["sex"] = customer_df["sex"].fillna("Unknown")
     customer_df["customer_age"] = customer_df["customer_age"].fillna(customer_df["customer_age"].median())
     customer_df["tenure"] = customer_df["tenure"].fillna(customer_df["tenure"].median())
     basket_df["basket_count"] = basket_df["basket_count"].fillna(0)
 
     # 'sex' bereinigen und harmonisieren
+    customer_df["sex"] = customer_df["sex"].fillna("UNKNOWN")
     customer_df["sex"] = customer_df["sex"].astype(str).str.upper().str.strip()
     customer_df["sex"] = customer_df["sex"].replace({
-        "female": "F",
-        "male": "M",     
+        "FEMALE": "F",
+        "MALE": "M",     
     })
-
-    if "sex" in customer_df.columns: customer_df["sex"] = customer_df["sex"].fillna("UNKNOWN") 
-    
-    else: customer_df["sex"] = "UNKNOWN"
+    customer_df["sex"] = customer_df["sex"].fillna("UNKNOWN")
 
     # Erweiterung der Datumspalten
     basket_df["basket_year"] = basket_df["basket_date"].dt.year 
@@ -102,7 +94,8 @@ def transform(customer_df, basket_df):
     for col in ["total_baskets", "total_items", "avg_basket_size", "distinct_products"]: final_df[col] = final_df[col].fillna(0) 
     
     final_df["last_basket_date"] = pd.to_datetime(final_df["last_basket_date"], errors="coerce") 
-    final_df["days_since_last_basket"] = ( (pd.Timestamp("2023-12-31") - final_df["last_basket_date"]).dt.days.fillna(-1) )
+    final_df["days_since_last_basket"] = (pd.Timestamp("2023-12-31") - final_df["last_basket_date"]).dt.days
+    final_df["days_since_last_basket"] = final_df["days_since_last_basket"].fillna(-1).astype(int)
 
     return final_df
 
