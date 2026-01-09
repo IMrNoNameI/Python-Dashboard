@@ -20,15 +20,15 @@ def extract():
             .str.zfill(8)
         )
     
+    # Ausgabe: Check, ob unsichtbare Zeichen vorhanden sind
     print([repr(x) for x in customer_df["customer_id"].head(10)])
     print([repr(x) for x in basket_df["customer_id"].head(10)])
     
+    # Ausgabe: Gemeinsame IDs
     gemeinsame_ids = set(customer_df["customer_id"]) & set(basket_df["customer_id"])
     print("Gemeinsame IDs:", len(gemeinsame_ids))
     print("Beispiel gemeinsame IDs:", list(gemeinsame_ids)[:10])
 
-
-    
     # Debug-Ausgabe: Wie viele IDs gibt es in beiden Tabellen?
     print("Kunden gesamt:", customer_df["customer_id"].nunique())
     print("Kunden mit Einkauf:", basket_df["customer_id"].nunique())
@@ -107,11 +107,12 @@ def transform(customer_df, basket_df):
     
     final_df = customer_df.merge(agg_features, on="customer_id", how="left")
 
+    # Ausgabe der gemergten Kunden
     print("Anzahl Kunden:", len(customer_df)) 
     print("Anzahl gemergter Kunden:", len(final_df[final_df['total_baskets'] > 0])) 
     print("Beispiel gemergt:", final_df[final_df['total_baskets'] > 0].head())
 
-    # Kunden ohne Käufe fangen (Fehlende Basket Werte)
+    # Kunden ohne Käufe abfangen (Fehlende Basket Werte)
     final_df["sex"] = final_df["sex"].fillna("UNKNOWN") 
     final_df["customer_age"] = pd.to_numeric(final_df["customer_age"], errors="coerce") 
     final_df["tenure"] = pd.to_numeric(final_df["tenure"], errors="coerce") 
