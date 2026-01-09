@@ -4,12 +4,36 @@ import pandas as pd
 # Extraktion
 # ---------------
 def extract():
-    basket_df = pd.read_csv("Dashboard/data/basket_details.csv", sep=",", encoding="utf-8")
-    customer_df = pd.read_csv("Dashboard/data/customer_details.csv", sep=",", encoding="utf-8")
 
-    basket_df["customer_id"] = basket_df["customer_id"].astype(str).str.strip() 
-    customer_df["customer_id"] = customer_df["customer_id"].astype(str).str.strip()
+    #Einlesen der CSV Dateien
+    basket_df = pd.read_csv("Dashboard/data/basket_details.csv", sep=",",dtype=str ,encoding="utf-8")
+    customer_df = pd.read_csv("Dashboard/data/customer_details.csv", sep=",",dtype=str, encoding="utf-8")
+
     
+    for df in [basket_df, customer_df]:
+        df["customer_id"] = (
+            df["customer_id"]
+            .astype(str)
+            .str.strip()
+            .str.replace(r"\.0$", "", regex=True)
+            .str.replace(r"[\s\t\r\n]", "", regex=True)
+            .str.zfill(8)
+        )
+    
+    print([repr(x) for x in customer_df["customer_id"].head(10)])
+    print([repr(x) for x in basket_df["customer_id"].head(10)])
+    
+    gemeinsame_ids = set(customer_df["customer_id"]) & set(basket_df["customer_id"])
+    print("Gemeinsame IDs:", len(gemeinsame_ids))
+    print("Beispiel gemeinsame IDs:", list(gemeinsame_ids)[:10])
+
+
+    
+    # Debug-Ausgabe: Wie viele IDs gibt es in beiden Tabellen?
+    print("Kunden gesamt:", customer_df["customer_id"].nunique())
+    print("Kunden mit Einkauf:", basket_df["customer_id"].nunique())
+    print("Überschneidung:", len(set(customer_df["customer_id"]) & set(basket_df["customer_id"])))
+
     return basket_df, customer_df
 
 #----------------
@@ -70,10 +94,11 @@ def transform(customer_df, basket_df):
     bins_age = [0, 24, 34, 44, 120] 
     labels_age = ["<25", "25-34", "35-44", "45+"] 
     customer_df["age_group"] = pd.cut( customer_df["customer_age"], bins=bins_age, labels=labels_age, right=True )
+ 
+    bins_tenure = [0, 25, 50, 100, 9999]  # 9999 als "unendlich"
+    labels_tenure = ["neu", "mittel", "lang", "sehr lang"]
+    customer_df["tenure_group"] = pd.cut(customer_df["tenure"], bins=bins_tenure, labels=labels_tenure, right=False, include_lowest=True)
 
-    bins_tenure = [0, 12, 36, 120] 
-    labels_tenure = ["neu", "mittel", "lang"] 
-    customer_df["tenure_group"] = pd.cut( customer_df["tenure"], bins=bins_tenure, labels=labels_tenure, right=True )
 
     # Join (Aggregierte Daten aus Basket & Kundendaten)
     for df in [customer_df, basket_df]: df["customer_id"] = df["customer_id"].astype(str).str.strip() 
