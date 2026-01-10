@@ -5,11 +5,10 @@ import pandas as pd
 # ---------------
 def extract():
 
-    #Einlesen der CSV Dateien
+    # Einlesen der CSV Dateien
     basket_df = pd.read_csv("Dashboard/data/basket_details.csv", sep=",",dtype=str ,encoding="utf-8")
     customer_df = pd.read_csv("Dashboard/data/customer_details.csv", sep=",",dtype=str, encoding="utf-8")
 
-    
     for df in [basket_df, customer_df]:
         df["customer_id"] = (
             df["customer_id"]
@@ -106,6 +105,9 @@ def transform(customer_df, basket_df):
     agg_features["customer_id"] = agg_features["customer_id"].astype(str).str.strip()
     
     final_df = customer_df.merge(agg_features, on="customer_id", how="left")
+
+    test_merge = basket_df.merge(customer_df, on="customer_id", how="inner") 
+    print("Test-Merge mit inner:", len(test_merge))
 
     # Ausgabe der gemergten Kunden
     print("Anzahl Kunden:", len(customer_df)) 
