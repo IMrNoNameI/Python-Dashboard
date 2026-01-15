@@ -9,6 +9,7 @@ def extract():
     basket_df = pd.read_csv("Dashboard/data/basket_details.csv", sep=",",dtype=str ,encoding="utf-8")
     customer_df = pd.read_csv("Dashboard/data/customer_details.csv", sep=",",dtype=str, encoding="utf-8")
 
+    # Bereinigung und Harmonisierung der customer_id Spalte
     for df in [basket_df, customer_df]:
         df["customer_id"] = (
             df["customer_id"]
@@ -124,6 +125,15 @@ def transform(customer_df, basket_df):
     final_df["last_basket_date"] = pd.to_datetime(final_df["last_basket_date"], errors="coerce") 
     final_df["days_since_last_basket"] = (pd.Timestamp("2023-12-31") - final_df["last_basket_date"]).dt.days
     final_df["days_since_last_basket"] = final_df["days_since_last_basket"].fillna(-1).astype(int)
+
+    # Zusammenfassende Statistiken ausgeben
+    print("Verteilung der Altersgruppen:")
+    print(final_df["age_group"].value_counts()) 
+    print("Verteilung der Tenure-Gruppen:") 
+    print(final_df["tenure_group"].value_counts())
+    print("Statistik zur durchschnittlichen Warenkorbgröße:")
+    print(final_df["avg_basket_size"].describe())
+    print("Anteil Kunden ohne Käufe:", (final_df["total_baskets"] == 0).mean())
 
     return final_df
 
