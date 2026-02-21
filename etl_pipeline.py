@@ -19,20 +19,6 @@ def extract():
             .str.replace(r"[\s\t\r\n]", "", regex=True)
             .str.zfill(8)
         )
-    
-    # Ausgabe: Check, ob unsichtbare Zeichen vorhanden sind
-    print([repr(x) for x in customer_df["customer_id"].head(10)])
-    print([repr(x) for x in basket_df["customer_id"].head(10)])
-    
-    # Ausgabe: Gemeinsame IDs
-    gemeinsame_ids = set(customer_df["customer_id"]) & set(basket_df["customer_id"])
-    print("Gemeinsame IDs:", len(gemeinsame_ids))
-    print("Beispiel gemeinsame IDs:", list(gemeinsame_ids)[:10])
-
-    # Debug-Ausgabe: Wie viele IDs gibt es in beiden Tabellen?
-    print("Kunden gesamt:", customer_df["customer_id"].nunique())
-    print("Kunden mit Einkauf:", basket_df["customer_id"].nunique())
-    print("Überschneidung:", len(set(customer_df["customer_id"]) & set(basket_df["customer_id"])))
 
     return basket_df, customer_df
 
@@ -105,10 +91,12 @@ def transform(customer_df, basket_df):
     
     agg_features["customer_id"] = agg_features["customer_id"].astype(str).str.strip()
     
-    final_df = customer_df.merge(agg_features, on="customer_id", how="left")
-
-    test_merge = basket_df.merge(customer_df, on="customer_id", how="inner") 
-    print("Test-Merge mit inner:", len(test_merge))
+    final_df = customer_df.merge(
+    agg_features,
+    on="customer_id",
+    how="left",
+    validate="one_to_one"
+    )
 
     # Ausgabe der gemergten Kunden
     print("Anzahl Kunden:", len(customer_df)) 
@@ -152,6 +140,7 @@ def run_pipeline():
     basket_df, customer_df = extract()
     final_df = transform(customer_df, basket_df)
     load(final_df)
+    print("ETL Pipeline erfolgreich abgeschlossen. Datei gespeichert als customer_basket_ready.csv")
 
 if __name__ == "__main__":
     run_pipeline()
