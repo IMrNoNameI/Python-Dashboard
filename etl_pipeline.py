@@ -91,12 +91,7 @@ def transform(customer_df, basket_df):
     
     agg_features["customer_id"] = agg_features["customer_id"].astype(str).str.strip()
     
-    final_df = customer_df.merge(
-    agg_features,
-    on="customer_id",
-    how="left",
-    validate="one_to_one"
-    )
+    final_df = customer_df.merge(agg_features, on="customer_id", how="left")
 
     # Ausgabe der gemergten Kunden
     print("Anzahl Kunden:", len(customer_df)) 
