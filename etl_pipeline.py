@@ -85,7 +85,6 @@ def transform(customer_df, basket_df):
     labels_tenure = ["neu", "mittel", "lang", "sehr lang"]
     customer_df["tenure_group"] = pd.cut(customer_df["tenure"], bins=bins_tenure, labels=labels_tenure, right=False, include_lowest=True)
 
-
     # Join (Aggregierte Daten aus Basket & Kundendaten)
     for df in [customer_df, basket_df]: df["customer_id"] = df["customer_id"].astype(str).str.strip() 
     
