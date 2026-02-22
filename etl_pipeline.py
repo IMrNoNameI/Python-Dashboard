@@ -135,7 +135,6 @@ def run_pipeline():
     basket_df, customer_df = extract()
     final_df = transform(customer_df, basket_df)
     load(final_df)
-    print("ETL Pipeline erfolgreich abgeschlossen. Datei gespeichert als customer_basket_ready.csv")
 
 if __name__ == "__main__":
     run_pipeline()
